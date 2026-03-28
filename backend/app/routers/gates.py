@@ -2,14 +2,21 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
+
 from app.db.database import get_db
 from app.models import Gate, GateExitCriteria, Deliverable, Workstream
+from app.models.gate import CriteriaStatus
+from app.models.person import Person
+from app.auth.dependencies import get_current_user, require_owner_or_admin
 
 router = APIRouter()
 
 
 @router.get("/")
-async def list_gates(db: AsyncSession = Depends(get_db)):
+async def list_gates(
+    db: AsyncSession = Depends(get_db),
+    _user: Person = Depends(get_current_user),
+):
     """All gates with exit criteria status."""
     result = await db.execute(
         select(Gate)
@@ -39,7 +46,10 @@ async def list_gates(db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/timeline")
-async def get_gate_timeline(db: AsyncSession = Depends(get_db)):
+async def get_gate_timeline(
+    db: AsyncSession = Depends(get_db),
+    _user: Person = Depends(get_current_user),
+):
     """Gate timeline matrix: gates x workstreams with deliverable status."""
     gates_result = await db.execute(
         select(Gate)
@@ -85,7 +95,11 @@ async def get_gate_timeline(db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/{gate_id}")
-async def get_gate(gate_id: int, db: AsyncSession = Depends(get_db)):
+async def get_gate(
+    gate_id: int,
+    db: AsyncSession = Depends(get_db),
+    _user: Person = Depends(get_current_user),
+):
     """Gate detail with per-workstream deliverable status."""
     result = await db.execute(
         select(Gate)
@@ -99,7 +113,6 @@ async def get_gate(gate_id: int, db: AsyncSession = Depends(get_db)):
     if not g:
         raise HTTPException(status_code=404, detail="Gate not found")
 
-    # Group deliverables by workstream
     by_workstream = {}
     for d in g.deliverables:
         ws_id = d.workstream.id
@@ -127,3 +140,31 @@ async def get_gate(gate_id: int, db: AsyncSession = Depends(get_db)):
         ],
         "workstream_deliverables": list(by_workstream.values()),
     }
+
+
+@router.put("/{gate_id}/criteria/{criteria_id}")
+async def update_exit_criteria(
+    gate_id: int,
+    criteria_id: int,
+    data: dict,
+    db: AsyncSession = Depends(get_db),
+    _user: Person = Depends(require_owner_or_admin),
+):
+    """Update gate exit criteria status."""
+    result = await db.execute(
+        select(GateExitCriteria).where(
+            GateExitCriteria.id == criteria_id,
+            GateExitCriteria.gate_id == gate_id,
+        )
+    )
+    ec = result.scalar_one_or_none()
+    if not ec:
+        raise HTTPException(status_code=404, detail="Exit criteria not found")
+
+    if "status" in data:
+        ec.status = CriteriaStatus(data["status"])
+    if "notes" in data:
+        ec.notes = data["notes"]
+
+    await db.commit()
+    return {"status": "updated", "id": criteria_id, "new_status": ec.status.value}

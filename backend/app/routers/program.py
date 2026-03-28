@@ -2,15 +2,16 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
+
 from app.db.database import get_db
-from app.models import Program, Phase, Gate, GateExitCriteria, Workstream
+from app.models import Program, Gate, Workstream
 
 router = APIRouter()
 
 
 @router.get("/")
 async def get_program(db: AsyncSession = Depends(get_db)):
-    """Get the full program overview."""
+    """Get the full program overview. No auth required for initial load."""
     result = await db.execute(
         select(Program)
         .options(
@@ -69,7 +70,7 @@ async def get_program(db: AsyncSession = Depends(get_db)):
 
 @router.post("/seed")
 async def seed_program(db: AsyncSession = Depends(get_db)):
-    """Trigger database seeding from PDF data."""
+    """Trigger database seeding from PDF data. Open for initial setup."""
     from app.db.seed import seed_waypoint_data
 
     await seed_waypoint_data(db)
