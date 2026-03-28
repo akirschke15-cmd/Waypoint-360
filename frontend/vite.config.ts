@@ -5,7 +5,7 @@ import path from 'path';
 export default defineConfig({
   plugins: [react()],
   build: {
-    outDir: '/tmp/waypoint360-dist',
+    outDir: 'dist',
   },
   resolve: {
     alias: {

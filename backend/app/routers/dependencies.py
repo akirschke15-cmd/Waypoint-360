@@ -1,15 +1,23 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
+
 from app.db.database import get_db
 from app.models import Dependency, Workstream
+from app.models.dependency import DependencyType, DependencyStatus, Criticality
+from app.models.person import Person
+from app.auth.dependencies import get_current_user, require_owner_or_admin
+from app.schemas.dependency import DependencyCreate, DependencyUpdate, DependencyResponse
 
 router = APIRouter()
 
 
 @router.get("/")
-async def list_dependencies(db: AsyncSession = Depends(get_db)):
+async def list_dependencies(
+    db: AsyncSession = Depends(get_db),
+    _user: Person = Depends(get_current_user),
+):
     """Full dependency graph data for D3 visualization."""
     ws_result = await db.execute(select(Workstream).order_by(Workstream.sort_order))
     workstreams = ws_result.scalars().all()
@@ -24,7 +32,6 @@ async def list_dependencies(db: AsyncSession = Depends(get_db)):
     )
     deps = dep_result.scalars().all()
 
-    # D3 force graph format
     nodes = [
         {
             "id": w.id,
@@ -54,7 +61,10 @@ async def list_dependencies(db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/critical-path")
-async def get_critical_path(db: AsyncSession = Depends(get_db)):
+async def get_critical_path(
+    db: AsyncSession = Depends(get_db),
+    _user: Person = Depends(get_current_user),
+):
     """Compute critical path through dependency graph."""
     dep_result = await db.execute(
         select(Dependency)
@@ -66,7 +76,6 @@ async def get_critical_path(db: AsyncSession = Depends(get_db)):
     )
     critical_deps = dep_result.scalars().all()
 
-    # Build adjacency for critical/high deps
     blocked_chains = []
     for d in critical_deps:
         if d.status.value in ("blocked", "at_risk"):
@@ -84,3 +93,65 @@ async def get_critical_path(db: AsyncSession = Depends(get_db)):
         "high_dependencies": len([d for d in critical_deps if d.criticality.value == "high"]),
         "blocked_or_at_risk": blocked_chains,
     }
+
+
+@router.post("/", response_model=DependencyResponse, status_code=201)
+async def create_dependency(
+    data: DependencyCreate,
+    db: AsyncSession = Depends(get_db),
+    _user: Person = Depends(require_owner_or_admin),
+):
+    """Create a new cross-workstream dependency."""
+    dep = Dependency(
+        source_workstream_id=data.source_workstream_id,
+        target_workstream_id=data.target_workstream_id,
+        gate_id=data.gate_id,
+        description=data.description,
+        dep_type=DependencyType(data.dep_type),
+        criticality=Criticality(data.criticality),
+        notes=data.notes,
+    )
+    db.add(dep)
+    await db.commit()
+    await db.refresh(dep)
+    return DependencyResponse(
+        id=dep.id, source_workstream_id=dep.source_workstream_id,
+        target_workstream_id=dep.target_workstream_id, gate_id=dep.gate_id,
+        description=dep.description, dep_type=dep.dep_type.value,
+        status=dep.status.value, criticality=dep.criticality.value,
+        notes=dep.notes,
+    )
+
+
+@router.put("/{dependency_id}", response_model=DependencyResponse)
+async def update_dependency(
+    dependency_id: int,
+    data: DependencyUpdate,
+    db: AsyncSession = Depends(get_db),
+    _user: Person = Depends(require_owner_or_admin),
+):
+    """Update dependency status or details."""
+    result = await db.execute(select(Dependency).where(Dependency.id == dependency_id))
+    dep = result.scalar_one_or_none()
+    if not dep:
+        raise HTTPException(status_code=404, detail="Dependency not found")
+
+    updates = data.model_dump(exclude_unset=True)
+    if "dep_type" in updates:
+        updates["dep_type"] = DependencyType(updates["dep_type"])
+    if "status" in updates:
+        updates["status"] = DependencyStatus(updates["status"])
+    if "criticality" in updates:
+        updates["criticality"] = Criticality(updates["criticality"])
+    for k, v in updates.items():
+        setattr(dep, k, v)
+
+    await db.commit()
+    await db.refresh(dep)
+    return DependencyResponse(
+        id=dep.id, source_workstream_id=dep.source_workstream_id,
+        target_workstream_id=dep.target_workstream_id, gate_id=dep.gate_id,
+        description=dep.description, dep_type=dep.dep_type.value,
+        status=dep.status.value, criticality=dep.criticality.value,
+        notes=dep.notes,
+    )

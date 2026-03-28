@@ -2,14 +2,22 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
+
 from app.db.database import get_db
-from app.models import Workstream, Deliverable, Risk, Decision, Dependency, StatusUpdate
+from app.models import Workstream, Deliverable, Dependency
+from app.models.workstream import WorkstreamStatus
+from app.models.person import Person
+from app.auth.dependencies import get_current_user, require_owner_or_admin
+from app.schemas.workstream import WorkstreamCreate, WorkstreamUpdate
 
 router = APIRouter()
 
 
 @router.get("/")
-async def list_workstreams(db: AsyncSession = Depends(get_db)):
+async def list_workstreams(
+    db: AsyncSession = Depends(get_db),
+    _user: Person = Depends(get_current_user),
+):
     """List all workstreams with summary status."""
     result = await db.execute(
         select(Workstream)
@@ -39,7 +47,11 @@ async def list_workstreams(db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/{workstream_id}")
-async def get_workstream(workstream_id: int, db: AsyncSession = Depends(get_db)):
+async def get_workstream(
+    workstream_id: int,
+    db: AsyncSession = Depends(get_db),
+    _user: Person = Depends(get_current_user),
+):
     """Full workstream detail with all related data."""
     result = await db.execute(
         select(Workstream)
@@ -134,18 +146,48 @@ async def get_workstream(workstream_id: int, db: AsyncSession = Depends(get_db))
     }
 
 
+@router.post("/", status_code=201)
+async def create_workstream(
+    data: WorkstreamCreate,
+    db: AsyncSession = Depends(get_db),
+    _user: Person = Depends(require_owner_or_admin),
+):
+    """Create a new workstream."""
+    ws = Workstream(
+        program_id=data.program_id,
+        name=data.name,
+        short_name=data.short_name,
+        purpose=data.purpose,
+        scope_in=data.scope_in,
+        scope_out=data.scope_out,
+        baseline_scope=data.scope_in,
+        owner_id=data.owner_id,
+        status=WorkstreamStatus(data.status),
+    )
+    db.add(ws)
+    await db.commit()
+    await db.refresh(ws)
+    return {"status": "created", "id": ws.id, "name": ws.name}
+
+
 @router.put("/{workstream_id}")
-async def update_workstream(workstream_id: int, data: dict, db: AsyncSession = Depends(get_db)):
+async def update_workstream(
+    workstream_id: int,
+    data: WorkstreamUpdate,
+    db: AsyncSession = Depends(get_db),
+    _user: Person = Depends(require_owner_or_admin),
+):
     """Update workstream fields."""
     result = await db.execute(select(Workstream).where(Workstream.id == workstream_id))
     w = result.scalar_one_or_none()
     if not w:
         raise HTTPException(status_code=404, detail="Workstream not found")
 
-    updatable = ["name", "purpose", "scope_in", "scope_out", "status"]
-    for field in updatable:
-        if field in data:
-            setattr(w, field, data[field])
+    updates = data.model_dump(exclude_unset=True)
+    if "status" in updates:
+        updates["status"] = WorkstreamStatus(updates["status"])
+    for k, v in updates.items():
+        setattr(w, k, v)
 
     await db.commit()
     return {"status": "updated", "id": workstream_id}

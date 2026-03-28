@@ -1,91 +1,106 @@
-from fastapi import APIRouter, Depends
+import logging
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.db.database import get_db
 
+from app.db.database import get_db
+from app.config import settings
+from app.models.person import Person
+from app.auth.dependencies import get_current_user
+
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
+def _check_api_key():
+    if not settings.ANTHROPIC_API_KEY:
+        raise HTTPException(
+            status_code=503,
+            detail="AI features require ANTHROPIC_API_KEY to be configured",
+        )
+
+
 @router.post("/query")
-async def ai_query(data: dict, db: AsyncSession = Depends(get_db)):
-    """Natural language query -> LangGraph analysis.
+async def ai_query(
+    data: dict,
+    db: AsyncSession = Depends(get_db),
+    _user: Person = Depends(get_current_user),
+):
+    """Natural language query -> LangGraph analysis."""
+    _check_api_key()
+    from app.ai.service import ai_service
 
-    v1: Returns structured stub response.
-    v2: Routes through LangGraph StateGraph with intent classification,
-        scope creep detection, dependency analysis, gate readiness,
-        risk aggregation, and status synthesis nodes.
-    """
     query = data.get("query", "")
+    if not query:
+        raise HTTPException(status_code=400, detail="Query is required")
 
-    # Stub response for v1 -- LangGraph integration in next session
-    return {
-        "query": query,
-        "intent": "general",
-        "response": f"[LangGraph integration pending] Analysis for: {query}",
-        "recommendations": [],
-        "sources": [],
-        "confidence": 0.0,
-    }
+    try:
+        result = await ai_service.query(query, db)
+        return result
+    except Exception as e:
+        logger.exception("AI query failed")
+        raise HTTPException(status_code=500, detail=f"AI analysis failed: {str(e)}")
 
 
 @router.get("/gate-readiness/{gate_id}")
-async def gate_readiness(gate_id: int, db: AsyncSession = Depends(get_db)):
-    """AI-powered gate readiness assessment.
+async def gate_readiness(
+    gate_id: int,
+    db: AsyncSession = Depends(get_db),
+    _user: Person = Depends(get_current_user),
+):
+    """AI-powered gate readiness assessment."""
+    _check_api_key()
+    from app.ai.service import ai_service
 
-    LangGraph will evaluate all exit criteria across all workstreams
-    for the specified gate and produce confidence scores.
-    """
-    return {
-        "gate_id": gate_id,
-        "status": "stub",
-        "message": "[LangGraph integration pending] Gate readiness assessment",
-        "confidence": 0.0,
-        "workstream_readiness": [],
-        "blockers": [],
-        "recommendations": [],
-    }
+    try:
+        return await ai_service.gate_readiness(gate_id, db)
+    except Exception as e:
+        logger.exception("Gate readiness analysis failed")
+        raise HTTPException(status_code=500, detail=f"AI analysis failed: {str(e)}")
 
 
 @router.get("/scope-creep")
-async def scope_creep_detection(db: AsyncSession = Depends(get_db)):
-    """AI-powered scope creep detection across all workstreams.
+async def scope_creep_detection(
+    db: AsyncSession = Depends(get_db),
+    _user: Person = Depends(get_current_user),
+):
+    """AI-powered scope creep detection across all workstreams."""
+    _check_api_key()
+    from app.ai.service import ai_service
 
-    LangGraph will compare baseline_scope vs current scope_in/scope_out
-    for each workstream and flag drift.
-    """
-    return {
-        "status": "stub",
-        "message": "[LangGraph integration pending] Scope creep analysis",
-        "workstreams_flagged": [],
-        "total_changes": 0,
-    }
+    try:
+        return await ai_service.scope_creep(db)
+    except Exception as e:
+        logger.exception("Scope creep analysis failed")
+        raise HTTPException(status_code=500, detail=f"AI analysis failed: {str(e)}")
 
 
 @router.get("/risks/correlated")
-async def correlated_risks(db: AsyncSession = Depends(get_db)):
-    """AI-powered cross-workstream risk correlation.
+async def correlated_risks(
+    db: AsyncSession = Depends(get_db),
+    _user: Person = Depends(get_current_user),
+):
+    """AI-powered cross-workstream risk correlation."""
+    _check_api_key()
+    from app.ai.service import ai_service
 
-    LangGraph will analyze risks across all workstreams and identify
-    compound risks that span multiple teams.
-    """
-    return {
-        "status": "stub",
-        "message": "[LangGraph integration pending] Risk correlation analysis",
-        "correlated_risks": [],
-        "compound_risk_score": 0.0,
-    }
+    try:
+        return await ai_service.correlated_risks(db)
+    except Exception as e:
+        logger.exception("Risk correlation analysis failed")
+        raise HTTPException(status_code=500, detail=f"AI analysis failed: {str(e)}")
 
 
 @router.get("/summary")
-async def executive_summary(db: AsyncSession = Depends(get_db)):
-    """AI-generated executive program summary.
+async def executive_summary(
+    db: AsyncSession = Depends(get_db),
+    _user: Person = Depends(get_current_user),
+):
+    """AI-generated executive program summary."""
+    _check_api_key()
+    from app.ai.service import ai_service
 
-    LangGraph will synthesize all workstream updates, gate progress,
-    dependency status, and risks into a concise executive brief.
-    """
-    return {
-        "status": "stub",
-        "message": "[LangGraph integration pending] Executive summary generation",
-        "summary": "",
-        "key_highlights": [],
-        "action_items": [],
-    }
+    try:
+        return await ai_service.executive_summary(db)
+    except Exception as e:
+        logger.exception("Executive summary generation failed")
+        raise HTTPException(status_code=500, detail=f"AI analysis failed: {str(e)}")

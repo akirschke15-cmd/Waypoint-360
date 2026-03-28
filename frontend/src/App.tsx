@@ -1,12 +1,13 @@
-import { Routes, Route, useLocation, Link } from 'react-router-dom';
-import { Menu, BarChart3, GitBranch, Clock, AlertTriangle, Palette } from 'lucide-react';
-import { useState } from 'react';
+import { Routes, Route, useLocation, Link, useNavigate } from 'react-router-dom';
+import { Menu, BarChart3, GitBranch, Clock, AlertTriangle, Palette, LogOut } from 'lucide-react';
+import { useState, useCallback } from 'react';
 import CommandCenter from '@/components/CommandCenter';
 import GateTimeline from '@/components/GateTimeline';
 import DependencyGraph from '@/components/DependencyGraph';
 import WorkstreamCard from '@/components/WorkstreamCard';
 import WorkstreamForm from '@/components/WorkstreamForm';
 import RiskHeatMap from '@/components/RiskHeatMap';
+import Login from '@/components/Login';
 import { ThemeProvider, useTheme } from '@/themes/index';
 import type { ThemeName } from '@/themes/index';
 
@@ -17,9 +18,10 @@ const navigation = [
   { name: 'Risks', href: '/risks', icon: AlertTriangle },
 ];
 
-function Sidebar({ open, setOpen }: { open: boolean; setOpen: (open: boolean) => void }) {
+function Sidebar({ open, setOpen, onLogout }: { open: boolean; setOpen: (open: boolean) => void; onLogout: () => void }) {
   const location = useLocation();
   const { currentTheme, setTheme } = useTheme();
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
 
   const toggleTheme = () => {
     setTheme(currentTheme === 'swa' ? 'neutral' : 'swa' as ThemeName);
@@ -67,9 +69,18 @@ function Sidebar({ open, setOpen }: { open: boolean; setOpen: (open: boolean) =>
             <Palette size={14} />
             <span>{currentTheme === 'swa' ? 'SWA Theme' : 'Neutral Theme'}</span>
           </button>
-          <div className="text-[10px] text-neutral-600 px-1">
-            <p>Southwest Airlines</p>
-            <p>AgentOps | Waypoint</p>
+          <div className="flex items-center justify-between px-1">
+            <div className="text-[10px] text-neutral-600">
+              <p className="text-neutral-400 font-medium">{user.name || 'User'}</p>
+              <p>{user.role || ''}</p>
+            </div>
+            <button
+              onClick={onLogout}
+              className="p-1.5 rounded text-neutral-500 hover:text-red-400 hover:bg-neutral-700/50 transition-colors"
+              title="Sign out"
+            >
+              <LogOut size={14} />
+            </button>
           </div>
         </div>
       </aside>
@@ -77,7 +88,7 @@ function Sidebar({ open, setOpen }: { open: boolean; setOpen: (open: boolean) =>
   );
 }
 
-function AppLayout() {
+function AppLayout({ onLogout }: { onLogout: () => void }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
 
@@ -86,7 +97,7 @@ function AppLayout() {
 
   return (
     <div className="flex min-h-screen bg-neutral-900">
-      <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
+      <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} onLogout={onLogout} />
 
       <main className="flex-1 overflow-auto">
         <header className="sticky top-0 z-30 bg-neutral-800/95 border-b border-neutral-700 px-6 py-3 backdrop-blur-sm">
@@ -124,10 +135,32 @@ function AppLayout() {
   );
 }
 
+function AuthenticatedApp() {
+  const navigate = useNavigate();
+  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
+
+  const handleLogin = useCallback(() => {
+    setIsAuthenticated(true);
+    navigate('/');
+  }, [navigate]);
+
+  const handleLogout = useCallback(() => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setIsAuthenticated(false);
+  }, []);
+
+  if (!isAuthenticated) {
+    return <Login onLogin={handleLogin} />;
+  }
+
+  return <AppLayout onLogout={handleLogout} />;
+}
+
 export default function App() {
   return (
     <ThemeProvider defaultTheme="swa">
-      <AppLayout />
+      <AuthenticatedApp />
     </ThemeProvider>
   );
 }

@@ -17,6 +17,9 @@ from app.models.dependency import DependencyType, DependencyStatus, Criticality
 from app.models.risk import Severity, Likelihood, RiskStatus
 from app.models.decision import DecisionStatus
 from app.models.person import UserRole
+from app.auth.security import hash_password
+
+DEFAULT_PASSWORD = hash_password("waypoint360")
 
 
 async def seed_waypoint_data(db: AsyncSession):
@@ -183,7 +186,15 @@ async def seed_waypoint_data(db: AsyncSession):
     ]
     person_objects = {}
     for name, title, org, role in people_data:
-        p = Person(name=name, title=title, organization=org, role=role)
+        email = name.lower().replace(" ", ".").split("(")[0].strip(".") + "@waypoint360.dev"
+        p = Person(
+            name=name,
+            email=email,
+            title=title,
+            organization=org,
+            role=role,
+            hashed_password=DEFAULT_PASSWORD,
+        )
         db.add(p)
         await db.flush()
         person_objects[name] = p
