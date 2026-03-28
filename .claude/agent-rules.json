@@ -1,0 +1,529 @@
+{
+  "version": "1.0",
+  "description": "Agent activation rules and trigger keywords for Boiler 4.0",
+  "agents": {
+    "planner": {
+      "name": "Planner",
+      "priority": 1,
+      "keywords": [
+        "plan",
+        "timeline",
+        "roadmap",
+        "phases",
+        "milestones",
+        "estimate",
+        "breakdown",
+        "scope",
+        "project planning",
+        "task breakdown",
+        "epic"
+      ],
+      "negations": [
+        "already planned",
+        "no planning needed",
+        "skip planning"
+      ],
+      "context_signals": [
+        "multiple tasks",
+        "large scope",
+        "phase definition",
+        "schedule constraint",
+        "dependency mapping"
+      ],
+      "min_score": 40
+    },
+    "architect": {
+      "name": "Architect",
+      "priority": 2,
+      "keywords": [
+        "design",
+        "architecture",
+        "system design",
+        "structure",
+        "pattern",
+        "trade-off",
+        "scalability",
+        "reliability",
+        "distributed",
+        "microservices",
+        "diagram"
+      ],
+      "negations": [
+        "don't design",
+        "no architecture needed",
+        "simple implementation"
+      ],
+      "context_signals": [
+        "multi-component",
+        "cross-service",
+        "high-traffic",
+        "compliance requirement",
+        "disaster recovery"
+      ],
+      "min_score": 40
+    },
+    "code-reviewer": {
+      "name": "Code Reviewer",
+      "priority": 3,
+      "keywords": [
+        "review",
+        "audit",
+        "feedback",
+        "quality",
+        "standards",
+        "lint",
+        "best practices",
+        "code quality",
+        "refactor",
+        "pr review",
+        "merge request"
+      ],
+      "negations": [
+        "don't review",
+        "skip review",
+        "no feedback"
+      ],
+      "context_signals": [
+        "security concern",
+        "code smell",
+        "performance issue",
+        "compliance check",
+        "team standard"
+      ],
+      "min_score": 40
+    },
+    "tdd-guide": {
+      "name": "TDD Guide",
+      "priority": 4,
+      "keywords": [
+        "test-driven",
+        "tdd",
+        "test first",
+        "coverage",
+        "unit test",
+        "integration test",
+        "e2e test",
+        "test strategy",
+        "testing"
+      ],
+      "negations": [
+        "don't test",
+        "skip tests",
+        "no testing"
+      ],
+      "context_signals": [
+        "coverage gap",
+        "qA phase",
+        "test failure",
+        "regression",
+        "critical path"
+      ],
+      "min_score": 40
+    },
+    "build-error-resolver": {
+      "name": "Build Error Resolver",
+      "priority": 5,
+      "keywords": [
+        "build fail",
+        "compile error",
+        "integration fail",
+        "ci/cd error",
+        "deployment fail",
+        "error",
+        "stack trace",
+        "broken build",
+        "fix build"
+      ],
+      "negations": [
+        "working fine",
+        "no errors",
+        "successful build"
+      ],
+      "context_signals": [
+        "pipeline failure",
+        "error logs",
+        "recent change",
+        "merge conflict",
+        "missing dependency"
+      ],
+      "min_score": 50
+    },
+    "security-reviewer": {
+      "name": "Security Reviewer",
+      "priority": 6,
+      "keywords": [
+        "security",
+        "vulnerability",
+        "exploit",
+        "breach",
+        "penetration",
+        "owasp",
+        "cve",
+        "auth",
+        "encryption",
+        "secure",
+        "compliance"
+      ],
+      "negations": [
+        "not security related",
+        "ignore security",
+        "no compliance"
+      ],
+      "context_signals": [
+        "threat model",
+        "regulatory",
+        "audit",
+        "data protection",
+        "access control"
+      ],
+      "min_score": 40
+    },
+    "product-manager": {
+      "name": "Product Manager",
+      "priority": 7,
+      "keywords": [
+        "requirements",
+        "user story",
+        "epic",
+        "use case",
+        "user journey",
+        "prd",
+        "feature spec",
+        "product",
+        "stakeholder",
+        "acceptance criteria"
+      ],
+      "negations": [
+        "no requirements",
+        "skip requirements",
+        "technical only"
+      ],
+      "context_signals": [
+        "stakeholder quote",
+        "market research",
+        "user feedback",
+        "business value",
+        "user persona"
+      ],
+      "min_score": 40
+    },
+    "frontend-engineer": {
+      "name": "Frontend Engineer",
+      "priority": 8,
+      "keywords": [
+        "ui",
+        "ux",
+        "react",
+        "frontend",
+        "component",
+        "styling",
+        "accessibility",
+        "responsive",
+        "browser",
+        "client-side",
+        "javascript"
+      ],
+      "negations": [
+        "backend only",
+        "no frontend",
+        "api only"
+      ],
+      "context_signals": [
+        "react-specific",
+        "mobile",
+        "responsive",
+        "a11y",
+        "web vitals"
+      ],
+      "min_score": 40
+    },
+    "backend-engineer": {
+      "name": "Backend Engineer",
+      "priority": 9,
+      "keywords": [
+        "api",
+        "database",
+        "backend",
+        "service",
+        "endpoint",
+        "query",
+        "scaling",
+        "distributed",
+        "server-side",
+        "database design"
+      ],
+      "negations": [
+        "frontend only",
+        "no backend",
+        "ui only"
+      ],
+      "context_signals": [
+        "microservices",
+        "distributed systems",
+        "data layer",
+        "performance",
+        "scalability"
+      ],
+      "min_score": 40
+    },
+    "fullstack-engineer": {
+      "name": "Fullstack Engineer",
+      "priority": 10,
+      "keywords": [
+        "end-to-end",
+        "feature complete",
+        "integration",
+        "full stack",
+        "backend to frontend",
+        "complete feature",
+        "full implementation"
+      ],
+      "negations": [
+        "partial implementation",
+        "skip integration",
+        "backend only"
+      ],
+      "context_signals": [
+        "multiple tech stack",
+        "tight deadline",
+        "complete delivery",
+        "verification checklist",
+        "integration testing"
+      ],
+      "min_score": 50
+    },
+    "python-expert": {
+      "name": "Python Expert",
+      "priority": 11,
+      "keywords": [
+        "python",
+        "fastapi",
+        "django",
+        "async",
+        "type hints",
+        "pandas",
+        "numpy",
+        "python-specific",
+        "py"
+      ],
+      "negations": [
+        "no python",
+        "not python",
+        "javascript only"
+      ],
+      "context_signals": [
+        "python version specified",
+        "specific framework",
+        "data science",
+        "ml/ai"
+      ],
+      "min_score": 40
+    },
+    "typescript-expert": {
+      "name": "TypeScript Expert",
+      "priority": 12,
+      "keywords": [
+        "typescript",
+        "generics",
+        "type",
+        "interfaces",
+        "next.js",
+        "react",
+        "node.js",
+        "ts",
+        "strict mode"
+      ],
+      "negations": [
+        "no typescript",
+        "not typescript",
+        "javascript only"
+      ],
+      "context_signals": [
+        "advanced types",
+        "strict mode issues",
+        "type inference",
+        "utility types"
+      ],
+      "min_score": 40
+    },
+    "terraform-expert": {
+      "name": "Terraform Expert",
+      "priority": 13,
+      "keywords": [
+        "terraform",
+        "iac",
+        "infrastructure",
+        "cloud",
+        "aws",
+        "gcp",
+        "azure",
+        "kubernetes",
+        "infrastructure-as-code"
+      ],
+      "negations": [
+        "no terraform",
+        "manual deployment",
+        "no iac"
+      ],
+      "context_signals": [
+        "multi-cloud",
+        "compliance context",
+        "disaster recovery",
+        "scaling policy"
+      ],
+      "min_score": 40
+    },
+    "devops-engineer": {
+      "name": "DevOps Engineer",
+      "priority": 14,
+      "keywords": [
+        "ci/cd",
+        "pipeline",
+        "deployment",
+        "docker",
+        "kubernetes",
+        "monitoring",
+        "observability",
+        "devops",
+        "automation"
+      ],
+      "negations": [
+        "no deployment",
+        "manual ops",
+        "no monitoring"
+      ],
+      "context_signals": [
+        "production incident",
+        "scaling issue",
+        "monitoring setup",
+        "log aggregation"
+      ],
+      "min_score": 40
+    },
+    "technical-writer": {
+      "name": "Technical Writer",
+      "priority": 15,
+      "keywords": [
+        "documentation",
+        "api doc",
+        "readme",
+        "guide",
+        "tutorial",
+        "specification",
+        "handbook",
+        "doc",
+        "write docs"
+      ],
+      "negations": [
+        "no documentation",
+        "skip docs",
+        "undocumented ok"
+      ],
+      "context_signals": [
+        "multiple audiences",
+        "api changes",
+        "new feature",
+        "user guide needed"
+      ],
+      "min_score": 40
+    },
+    "debugger": {
+      "name": "Debugger",
+      "priority": 16,
+      "keywords": [
+        "bug",
+        "error",
+        "crash",
+        "fail",
+        "debug",
+        "issue",
+        "troubleshoot",
+        "trace",
+        "root cause",
+        "fix bug"
+      ],
+      "negations": [
+        "no bugs",
+        "working fine",
+        "no issues"
+      ],
+      "context_signals": [
+        "intermittent issue",
+        "production problem",
+        "reproduction steps",
+        "error logs"
+      ],
+      "min_score": 50
+    },
+    "performance-optimizer": {
+      "name": "Performance Optimizer",
+      "priority": 17,
+      "keywords": [
+        "performance",
+        "optimization",
+        "slow",
+        "bottleneck",
+        "profiling",
+        "latency",
+        "throughput",
+        "optimize",
+        "improve performance"
+      ],
+      "negations": [
+        "performance ok",
+        "no optimization",
+        "skip optimization"
+      ],
+      "context_signals": [
+        "metrics provided",
+        "p99 latency",
+        "benchmark",
+        "web vitals"
+      ],
+      "min_score": 40
+    }
+  },
+  "scoring_weights": {
+    "keyword_match": 0.40,
+    "context_signals": 0.35,
+    "execution_requirements": 0.15,
+    "historical_performance": 0.10
+  },
+  "score_tiers": {
+    "primary": {
+      "min": 80,
+      "max": 100,
+      "action": "invoke_immediately"
+    },
+    "secondary": {
+      "min": 60,
+      "max": 79,
+      "action": "consider_alongside_primary"
+    },
+    "tertiary": {
+      "min": 40,
+      "max": 59,
+      "action": "may_assist_specific_aspects"
+    },
+    "no_match": {
+      "min": 0,
+      "max": 39,
+      "action": "skip"
+    }
+  },
+  "collaboration_rules": {
+    "multiple_primary": "all_agents_lead_with_coordination",
+    "primary_with_secondary": "primary_leads_secondary_supports",
+    "primary_with_tertiary": "primary_leads_tertiary_assists",
+    "feedback_loop": "supporting_agents_flag_issues_to_primary"
+  },
+  "override_commands": {
+    "manual_select": "/use <agent-name>",
+    "disable_auto": "@skip <agent-name>"
+  },
+  "logging": {
+    "enabled": true,
+    "location": ".claude/logs/activation.log",
+    "level": "info"
+  }
+}

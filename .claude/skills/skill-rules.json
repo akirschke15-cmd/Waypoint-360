@@ -1,0 +1,260 @@
+{
+  "version": "1.0",
+  "description": "Auto-activation rules mapping keywords, contexts, and file patterns to skill triggers",
+  "skills": [
+    {
+      "name": "phase",
+      "triggers": {
+        "keywords": ["multi-phase", "parallel build", "structured build", "phase plan", "phase execution", "agent dispatch"],
+        "contexts": ["planning complex projects", "multi-step workflows", "parallel execution", "checkpoint commits"],
+        "files": ["docs/phase-plan-*.md", "docs/phase-progress.md"]
+      },
+      "auto_activate": true,
+      "priority": 1
+    },
+    {
+      "name": "commit",
+      "triggers": {
+        "keywords": ["commit code", "git commit", "push changes", "conventional commit", "commit message"],
+        "contexts": ["end of phase", "after feature completion", "batch of work", "deployment preparation"],
+        "files": ["package.json", ".gitignore"]
+      },
+      "auto_activate": true,
+      "priority": 2
+    },
+    {
+      "name": "fix-loop",
+      "triggers": {
+        "keywords": ["fix failing test", "test failed", "test failure", "debug test", "red-green-refactor"],
+        "contexts": ["test suite broken", "debugging test failure", "regression", "autonomous fix"],
+        "files": ["*.test.ts", "*.test.js", "test_*.py", "*_test.py"]
+      },
+      "auto_activate": true,
+      "priority": 1
+    },
+    {
+      "name": "security-audit",
+      "triggers": {
+        "keywords": ["security audit", "security review", "security sweep", "parallel security", "vulnerability scan"],
+        "contexts": ["pre-deployment", "periodic review", "compliance check", "penetration testing"],
+        "files": [".env", ".env.local", "auth/*.ts", "routes/*auth*.ts"]
+      },
+      "auto_activate": true,
+      "priority": 1
+    },
+    {
+      "name": "seed-safety",
+      "triggers": {
+        "keywords": ["seed database", "run seed", "database migration", "seed script", "idempotent seed"],
+        "contexts": ["database setup", "test data", "fixture loading", "migration safety"],
+        "files": ["prisma/seed.ts", "seeds/*.js", "migrations/*.sql"]
+      },
+      "auto_activate": true,
+      "priority": 2
+    },
+    {
+      "name": "coding-standards",
+      "triggers": {
+        "keywords": ["code review", "naming convention", "style guide", "linting", "code quality"],
+        "contexts": ["any code change", "TypeScript files", "JavaScript files", "React components"],
+        "files": ["*.ts", "*.tsx", "*.js", "*.jsx"]
+      },
+      "auto_activate": false,
+      "priority": 3
+    },
+    {
+      "name": "typescript-development",
+      "triggers": {
+        "keywords": ["TypeScript", "type error", "generic", "utility type", "tsconfig", "type safety"],
+        "contexts": ["TypeScript files", "type errors", "type-safe API design", "Express with types"],
+        "files": ["tsconfig.json", "*.ts", "*.tsx", "types/*.ts"]
+      },
+      "auto_activate": true,
+      "priority": 2
+    },
+    {
+      "name": "python-development",
+      "triggers": {
+        "keywords": ["Python", "FastAPI", "Django", "Flask", "type hint", "Pydantic", "async"],
+        "contexts": ["Python project", "API development", "async patterns", "framework setup"],
+        "files": ["pyproject.toml", "*.py", "requirements.txt"]
+      },
+      "auto_activate": true,
+      "priority": 2
+    },
+    {
+      "name": "python-testing",
+      "triggers": {
+        "keywords": ["pytest", "test fixture", "parametrize", "mock", "Python test"],
+        "contexts": ["Python test files", "test setup", "fixture patterns"],
+        "files": ["test_*.py", "*_test.py", "pytest.ini"]
+      },
+      "auto_activate": true,
+      "priority": 2
+    },
+    {
+      "name": "tdd-workflow",
+      "triggers": {
+        "keywords": ["test-driven", "TDD", "red-green-refactor", "test first"],
+        "contexts": ["feature development", "new functionality", "code coverage"],
+        "files": ["*.test.ts", "*.test.js", "test_*.py"]
+      },
+      "auto_activate": false,
+      "priority": 2
+    },
+    {
+      "name": "testing-best-practices",
+      "triggers": {
+        "keywords": ["test coverage", "integration test", "unit test", "E2E test", "test pyramid"],
+        "contexts": ["test infrastructure", "testing strategy", "coverage goals"],
+        "files": ["jest.config.js", "vitest.config.ts", "pytest.ini"]
+      },
+      "auto_activate": false,
+      "priority": 2
+    },
+    {
+      "name": "e2e-testing",
+      "triggers": {
+        "keywords": ["Playwright", "E2E test", "end-to-end", "Page Object Model", "flaky test"],
+        "contexts": ["browser automation", "user flow testing", "integration testing"],
+        "files": ["playwright.config.ts", "tests/e2e/*.ts", "*.spec.ts"]
+      },
+      "auto_activate": true,
+      "priority": 2
+    },
+    {
+      "name": "verification-loop",
+      "triggers": {
+        "keywords": ["verify", "pre-commit", "build check", "type check", "lint check", "test check"],
+        "contexts": ["before commit", "deployment gate", "quality check", "verification"],
+        "files": [".github/workflows/*.yml", "package.json"]
+      },
+      "auto_activate": true,
+      "priority": 3
+    },
+    {
+      "name": "api-design",
+      "triggers": {
+        "keywords": ["API design", "REST endpoint", "HTTP method", "resource naming", "pagination", "versioning"],
+        "contexts": ["API endpoint design", "REST pattern", "HTTP standards"],
+        "files": ["routes/*.ts", "routes/*.js", "api/*.ts"]
+      },
+      "auto_activate": true,
+      "priority": 2
+    },
+    {
+      "name": "backend-patterns",
+      "triggers": {
+        "keywords": ["backend", "N+1", "query optimization", "service layer", "repository", "middleware"],
+        "contexts": ["backend architecture", "database queries", "API routes"],
+        "files": ["services/*.ts", "repositories/*.ts", "routes/*.ts"]
+      },
+      "auto_activate": true,
+      "priority": 2
+    },
+    {
+      "name": "frontend-patterns",
+      "triggers": {
+        "keywords": ["React", "component", "hook", "state management", "performance", "accessibility"],
+        "contexts": ["React components", "frontend code", "UI development"],
+        "files": ["components/*.tsx", "hooks/*.ts", "*.tsx"]
+      },
+      "auto_activate": true,
+      "priority": 2
+    },
+    {
+      "name": "eval-harness",
+      "triggers": {
+        "keywords": ["eval-driven", "pass@k", "benchmark", "evaluation", "grading function", "LLM evaluation"],
+        "contexts": ["AI system evaluation", "LLM benchmarking", "metric design"],
+        "files": ["evals/*.py", "evals/*.ts", "benchmarks/*.py"]
+      },
+      "auto_activate": true,
+      "priority": 2
+    },
+    {
+      "name": "continuous-learning-v2",
+      "triggers": {
+        "keywords": ["instinct", "learned pattern", "context-aware", "decision tree", "heuristic"],
+        "contexts": ["project-scoped learning", "adaptive behavior", "pattern recognition"],
+        "files": [".claude/instincts.md"]
+      },
+      "auto_activate": false,
+      "priority": 3
+    },
+    {
+      "name": "terraform-infrastructure",
+      "triggers": {
+        "keywords": ["Terraform", "infrastructure", "IaC", "provider", "module", "state management"],
+        "contexts": ["infrastructure as code", "cloud deployment", "multi-cloud"],
+        "files": ["*.tf", "terraform.tfvars", ".terraform/"]
+      },
+      "auto_activate": true,
+      "priority": 2
+    },
+    {
+      "name": "deployment-patterns",
+      "triggers": {
+        "keywords": ["deployment", "release", "rolling deploy", "blue-green", "canary", "Docker"],
+        "contexts": ["deployment strategy", "CI/CD pipeline", "production release"],
+        "files": ["Dockerfile", ".github/workflows/*.yml", "docker-compose.yml"]
+      },
+      "auto_activate": true,
+      "priority": 2
+    },
+    {
+      "name": "autonomous-loops",
+      "triggers": {
+        "keywords": ["autonomous", "loop", "DAG", "workflow automation", "conditional branching"],
+        "contexts": ["complex workflows", "multi-step automation", "error recovery"],
+        "files": ["docs/*.md", "scripts/*.sh"]
+      },
+      "auto_activate": false,
+      "priority": 2
+    },
+    {
+      "name": "security-review",
+      "triggers": {
+        "keywords": ["security", "injection", "XSS", "CSRF", "secrets", "authentication", "rate limiting"],
+        "contexts": ["code review", "security concern", "vulnerability"],
+        "files": ["auth/*.ts", "routes/*.ts", ".env", ".env.local"]
+      },
+      "auto_activate": true,
+      "priority": 1
+    },
+    {
+      "name": "strategic-compact",
+      "triggers": {
+        "keywords": ["summarize", "compact context", "phase boundary", "wrap-up", "consolidate"],
+        "contexts": ["long-running project", "context reset", "progress checkpoint"],
+        "files": ["docs/phase-progress.md"]
+      },
+      "auto_activate": false,
+      "priority": 3
+    }
+  ],
+  "activation_strategy": {
+    "description": "How skills are selected and prioritized",
+    "rules": [
+      "Higher priority skills are checked first",
+      "Keywords trigger skill consideration",
+      "File patterns trigger skill consideration",
+      "Context keywords (from conversation) trigger skill consideration",
+      "auto_activate: true means skill loads without explicit mention",
+      "auto_activate: false means skill only loads when explicitly referenced",
+      "Multiple skills can activate in the same session",
+      "Skills do not conflict; they are complementary"
+    ]
+  },
+  "context_hints": {
+    "description": "Contextual clues that influence skill activation",
+    "examples": {
+      "testing_context": ["test failed", "coverage low", "red-green-refactor", "debug", "regression"],
+      "infrastructure_context": ["deploy", "infrastructure", "Docker", "Kubernetes", "AWS", "CI/CD"],
+      "api_context": ["endpoint", "REST", "HTTP", "request", "response", "payload"],
+      "database_context": ["database", "migration", "seed", "schema", "query", "N+1"],
+      "security_context": ["security", "vulnerability", "injection", "XSS", "CSRF", "auth", "token"],
+      "multi_phase_context": ["plan", "phase", "parallel", "checkpoint", "dispatch"]
+    }
+  }
+}

@@ -1,0 +1,82 @@
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Runtime
+.env
+.env.local
+.env.*.local
+*.log
+logs/
+
+# Build output
+dist/
+build/
+out/
+.next/
+.nuxt/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Testing
+coverage/
+.nyc_output/
+
+# Temporary
+tmp/
+temp/
+*.tmp
+
+# Audit logs
+.audit-logs/*
+!.audit-logs/.gitkeep
+
+# Task queue (local development only)
+.task-queue.local.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+.eggs/
+*.egg
+venv/
+.venv/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+db/data/
+
+# Vite temp files
+vite.config.ts.timestamp-*
+
+# Secrets (never commit these)
+.secrets
+.env.production
+config/secrets.json
+private-key.pem
+
+# OS
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+
+# Keep these committed
+!.gitkeep
+!.task-queue.json
+!.claude/
+!.claude-plugin/

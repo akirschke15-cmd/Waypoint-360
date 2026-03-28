@@ -1,0 +1,190 @@
+{
+  "version": "4.0.0",
+  "projectName": "Waypoint 360",
+  "boilerMode": "lean",
+  "agents": {
+    "searchPaths": ["./agents", "./skills", "./hooks"],
+    "requirementConformance": true,
+    "hookExecution": "mandatory"
+  },
+  "agentDefinitions": {
+    "agent-router": {
+      "description": "Intent parsing and task routing for Waypoint 360",
+      "path": "./agents/agent-router.js",
+      "requiredReads": ["CLAUDE.md", "./.claude/project-preferences.md"],
+      "allowedActions": ["route", "queue-task", "check-conformance"]
+    },
+    "requirements-agent": {
+      "description": "Clarification, acceptance criteria, scope verification",
+      "path": "./agents/requirements-agent.js",
+      "model": "claude-opus",
+      "temperature": 0.3,
+      "requiredReads": ["CLAUDE.md", "./.claude/docs/01-ARCHITECTURE.md"],
+      "allowedActions": ["clarify", "define-acceptance-criteria", "validate-scope"]
+    },
+    "backend-engineer": {
+      "description": "FastAPI routes, SQLAlchemy queries, Pydantic models",
+      "path": "./agents/backend-engineer.js",
+      "model": "claude-sonnet",
+      "temperature": 0.1,
+      "requiredReads": ["CLAUDE.md", "./.claude/docs/01-ARCHITECTURE.md", "./.claude/docs/02-DATABASE-SCHEMA.md", "./.claude/docs/03-API-SPECIFICATION.md"],
+      "allowedActions": ["create-code", "modify-code", "create-migration", "execute-task"]
+    },
+    "frontend-engineer": {
+      "description": "React components, Tailwind CSS, D3.js visualization",
+      "path": "./agents/frontend-engineer.js",
+      "model": "claude-sonnet",
+      "temperature": 0.1,
+      "requiredReads": ["CLAUDE.md", "./.claude/docs/04-FRONTEND-ARCHITECTURE.md", "./.claude/docs/03-API-SPECIFICATION.md"],
+      "allowedActions": ["create-code", "modify-code", "execute-task"]
+    },
+    "python-expert": {
+      "description": "LangGraph nodes, Claude API, prompt engineering, Python patterns",
+      "path": "./agents/python-expert.js",
+      "model": "claude-opus",
+      "temperature": 0.2,
+      "requiredReads": ["CLAUDE.md", "./.claude/docs/05-AI-PIPELINE.md", "./.claude/docs/09-PROMPT-TEMPLATES.md"],
+      "allowedActions": ["create-code", "modify-code", "execute-task"]
+    },
+    "typescript-expert": {
+      "description": "TypeScript types, Vite config, frontend build optimization",
+      "path": "./agents/typescript-expert.js",
+      "model": "claude-sonnet",
+      "temperature": 0.1,
+      "requiredReads": ["CLAUDE.md", "./.claude/docs/04-FRONTEND-ARCHITECTURE.md"],
+      "allowedActions": ["create-code", "modify-code", "execute-task"]
+    },
+    "devops-engineer": {
+      "description": "Docker, CI/CD, AWS deployment, OTel, CloudWatch",
+      "path": "./agents/devops-engineer.js",
+      "model": "claude-sonnet",
+      "temperature": 0.1,
+      "requiredReads": ["CLAUDE.md", "./.claude/docs/01-ARCHITECTURE.md", "./.claude/docs/12-INTEGRATIONS.md"],
+      "allowedActions": ["create-code", "modify-code", "execute-task"]
+    },
+    "security-reviewer": {
+      "description": "JWT auth, RBAC, input validation, OWASP compliance",
+      "path": "./agents/security-reviewer.js",
+      "model": "claude-opus",
+      "temperature": 0.2,
+      "requiredReads": ["CLAUDE.md", "./.claude/docs/07-SECURITY.md"],
+      "allowedActions": ["audit", "validate", "create-code", "modify-code"]
+    },
+    "tdd-guide": {
+      "description": "pytest, Vitest, Playwright test suites",
+      "path": "./agents/tdd-guide.js",
+      "model": "claude-sonnet",
+      "temperature": 0.1,
+      "requiredReads": ["CLAUDE.md", "./.claude/docs/10-TESTING-STRATEGY.md"],
+      "allowedActions": ["create-code", "execute-task"]
+    },
+    "validation-agent": {
+      "description": "Acceptance criteria check, conformance audit, sign-off",
+      "path": "./agents/validation-agent.js",
+      "model": "claude-opus",
+      "temperature": 0.2,
+      "requiredReads": ["CLAUDE.md", "./.claude/project-preferences.md"],
+      "allowedActions": ["validate-acceptance-criteria", "audit-conformance", "sign-off", "reject-task"]
+    },
+    "documentation-agent": {
+      "description": "Design docs, decision records, README, API docs",
+      "path": "./agents/documentation-agent.js",
+      "model": "claude-haiku",
+      "temperature": 0.1,
+      "requiredReads": ["CLAUDE.md"],
+      "allowedActions": ["create-design-doc", "create-decision-record", "create-runbook"]
+    }
+  },
+  "hooks": {
+    "UserPromptSubmit": {
+      "handler": "./hooks/user-prompt-submit.js",
+      "required": true,
+      "order": 1,
+      "description": "Parse intent -> extract requirements -> check task queue -> route to agent"
+    },
+    "PostToolUse": {
+      "handler": "./hooks/post-tool-use.js",
+      "required": true,
+      "order": 2,
+      "description": "Validate output -> check conformance -> update audit log"
+    },
+    "SubagentStart": {
+      "handler": "./hooks/subagent-start.js",
+      "required": true,
+      "order": 3,
+      "description": "Verify agent reads CLAUDE.md -> confirm scope -> check frozen files"
+    },
+    "SubagentStop": {
+      "handler": "./hooks/subagent-stop.js",
+      "required": true,
+      "order": 4,
+      "description": "Collect outcomes -> run conformance validator -> log decisions"
+    },
+    "TaskCompleted": {
+      "handler": "./hooks/task-completed.js",
+      "required": true,
+      "order": 5,
+      "description": "Validate against requirement -> update status -> mark frozen files"
+    },
+    "TeammateIdle": {
+      "handler": "./hooks/teammate-idle.js",
+      "required": false,
+      "order": 6,
+      "description": "Alert if task queue has pending items -> offer clarification"
+    }
+  },
+  "allowedCreations": [
+    "./agents/**/*.js",
+    "./hooks/**/*.js",
+    "./skills/**/*",
+    "./backend/**/*.py",
+    "./frontend/src/**/*.ts",
+    "./frontend/src/**/*.tsx",
+    "./frontend/src/**/*.css",
+    "./backend/tests/**/*.py",
+    "./frontend/src/**/*.test.tsx",
+    "./e2e/**/*.ts",
+    "./backend/alembic/**/*.py",
+    "./backend/app/integrations/**/*.py",
+    "./.claude/docs/**/*.md",
+    "./docs/**/*.md"
+  ],
+  "frozenFiles": [
+    "./CLAUDE.md",
+    "./.claude/settings.json",
+    "./.claude/project-preferences.md",
+    "./backend/requirements.txt",
+    "./frontend/package.json",
+    "./.gitignore"
+  ],
+  "conformanceRules": {
+    "requireAcceptanceCriteria": true,
+    "requireDesignDocReference": true,
+    "requireAuditTrail": true,
+    "requireVerticalSlice": true,
+    "blockPartialFeatures": true,
+    "blockMockData": false,
+    "blockImplicitDeferral": true,
+    "validateBeforeCompletion": true
+  },
+  "taskQueue": {
+    "enabled": true,
+    "location": "./.claude/docs/00-TASK-QUEUE.md",
+    "enforceInStrictMode": true,
+    "enforceInLeanMode": false
+  },
+  "skillActivation": [
+    "requirement-validator",
+    "conformance-auditor",
+    "frozen-file-protector",
+    "design-doc-validator",
+    "task-queue-checker",
+    "audit-logger"
+  ],
+  "environment": {
+    "NODE_ENV": "development",
+    "BOILER_MODE": "lean",
+    "REQUIRE_CONFORMANCE": "true",
+    "AUDIT_LOG_PATH": "./.audit-logs/"
+  }
+}

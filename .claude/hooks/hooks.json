@@ -1,0 +1,78 @@
+{
+  "version": "1.0",
+  "hooks": [
+    {
+      "id": "agent-activation",
+      "event": "UserPromptSubmit",
+      "script": "./agent-activation.js",
+      "enabled": true,
+      "description": "Scores user prompt against agent rules and outputs dispatch directives"
+    },
+    {
+      "id": "skill-activation",
+      "event": "UserPromptSubmit",
+      "script": "./skill-activation.js",
+      "enabled": true,
+      "description": "Auto-loads skills based on file context and keywords"
+    },
+    {
+      "id": "post-edit-typecheck",
+      "event": "PostToolUse",
+      "script": "./post-edit-typecheck.js",
+      "enabled": true,
+      "tools": ["Write", "Edit"],
+      "description": "Runs tsc for TypeScript, py_compile for Python, terraform validate for Terraform"
+    },
+    {
+      "id": "post-edit-quality",
+      "event": "PostToolUse",
+      "script": "./post-edit-quality.js",
+      "enabled": true,
+      "tools": ["Write", "Edit"],
+      "description": "Fast quality checks using biome, prettier, or ruff"
+    },
+    {
+      "id": "task-completed-gate",
+      "event": "TaskCompleted",
+      "script": "./task-completed-gate.js",
+      "enabled": true,
+      "description": "Runs test gate, syntax gate, secret scan gate. Exit 2 to reject, 0 to accept"
+    },
+    {
+      "id": "session-start",
+      "event": "SessionStart",
+      "script": "./session-start.js",
+      "enabled": true,
+      "description": "Loads previous session context and detects project type"
+    },
+    {
+      "id": "session-end",
+      "event": "SessionEnd",
+      "script": "./session-end.js",
+      "enabled": true,
+      "description": "Persists session state before closing"
+    },
+    {
+      "id": "pre-compact",
+      "event": "PreCompact",
+      "script": "./pre-compact.js",
+      "enabled": true,
+      "description": "Saves state before session compaction"
+    },
+    {
+      "id": "conformance-check",
+      "event": "PostToolUse",
+      "script": "./conformance-check.js",
+      "enabled": true,
+      "tools": ["Write", "Edit"],
+      "description": "Reminds about requirement conformance. Strict mode mandatory, lean mode advisory"
+    },
+    {
+      "id": "subagent-lifecycle",
+      "event": "SubagentStart,SubagentEnd",
+      "script": "./subagent-lifecycle.js",
+      "enabled": true,
+      "description": "Logs agent spawn and completion events"
+    }
+  ]
+}

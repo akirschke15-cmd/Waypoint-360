@@ -1,0 +1,16 @@
+Backend (FastAPI + SQLAlchemy + SQLite)
+
+10 SQLAlchemy models covering Program, Phases, Gates, Workstreams, Deliverables, Dependencies, Risks, Decisions, Status Updates, Scope Changes
+6 API routers: auth, program, workstreams, gates (with timeline matrix), dependencies (with critical path), AI (5 LangGraph stubs)
+Full seed data from the Commercial Workshop PDF: 1 program, 3 phases, 6 gates with exit criteria, 23 people, 10 workstreams with ~60 deliverables, 14 cross-workstream dependencies, 12 risks, 8 decisions
+All endpoints tested and returning correct data
+
+Frontend (React 18 + TypeScript + Vite + Tailwind)
+
+Dashboard/Command Center: Program banner, KPI cards (on track/at risk/blocked/risks/deliverables), workstream sidebar with status badges, AI chat interface (LangGraph stub), gate progress bars, critical dependency summary
+Gate Timeline: Workstream x Gate matrix with color-coded cells showing deliverable status, expandable gate detail cards with exit criteria
+Dependency Graph: D3 force-directed graph with drag, zoom, criticality filtering, arrow markers, color-coded nodes by status, tooltip on hover, critical path summary
+Risk Heat Map: Severity x Likelihood matrix, status filtering, risk register with workstream linking
+Workstream Detail: Full scope in/out, owner + team, deliverables by gate, risks with severity/mitigation, decisions needed, dependencies (needs from / provides to), status update timeline
+Theme System: SWA branded (Blue #304CB2, Gold #FFBF00, Red #C8102E) + neutral dark toggle
+TypeScript passes clean, production build compiles

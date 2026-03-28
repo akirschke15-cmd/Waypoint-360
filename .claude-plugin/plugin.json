@@ -1,0 +1,198 @@
+{
+  "name": "boiler-4.0",
+  "version": "4.0.0",
+  "description": "Boiler 4.0: Merged ECC runtime with Boiler 3.0 governance framework",
+  "author": "Boiler Framework Team",
+  "compatibleWithECCVersion": "1.8.0",
+  "manifestVersion": 2,
+  "agents": [
+    {
+      "id": "agent-router",
+      "name": "Agent Router",
+      "description": "Intent parsing and task routing orchestrator",
+      "path": "./agents/agent-router.js",
+      "requiredReads": [
+        "CLAUDE.md",
+        "./.claude/project-preferences.md"
+      ],
+      "role": "orchestrator"
+    },
+    {
+      "id": "requirements-agent",
+      "name": "Requirements Agent",
+      "description": "Clarification, acceptance criteria definition, scope verification",
+      "path": "./agents/requirements-agent.js",
+      "requiredReads": [
+        "CLAUDE.md",
+        "01-ARCHITECTURE.md"
+      ],
+      "role": "analyst"
+    },
+    {
+      "id": "implementation-agent",
+      "name": "Implementation Agent",
+      "description": "Code, infrastructure, schema changes execution",
+      "path": "./agents/implementation-agent.js",
+      "requiredReads": [
+        "CLAUDE.md",
+        "01-ARCHITECTURE.md",
+        "02-DATABASE-SCHEMA.md",
+        "03-API-SPECIFICATION.md",
+        "04-FRONTEND-ARCHITECTURE.md"
+      ],
+      "role": "builder"
+    },
+    {
+      "id": "validation-agent",
+      "name": "Validation Agent",
+      "description": "Acceptance criteria validation, conformance audit, sign-off",
+      "path": "./agents/validation-agent.js",
+      "requiredReads": [
+        "CLAUDE.md",
+        "./.claude/project-preferences.md"
+      ],
+      "role": "auditor"
+    },
+    {
+      "id": "documentation-agent",
+      "name": "Documentation Agent",
+      "description": "Design documents, decision records, runbooks creation and maintenance",
+      "path": "./agents/documentation-agent.js",
+      "requiredReads": [
+        "CLAUDE.md"
+      ],
+      "role": "documentarian"
+    },
+    {
+      "id": "integration-agent",
+      "name": "Integration Agent",
+      "description": "External service connections, API clients, webhooks",
+      "path": "./agents/integration-agent.js",
+      "requiredReads": [
+        "CLAUDE.md",
+        "05-INTEGRATION-PATTERNS.md",
+        "06-SECURITY-REQUIREMENTS.md"
+      ],
+      "role": "integrator"
+    }
+  ],
+  "skills": {
+    "directory": "./skills",
+    "autoLoad": true,
+    "required": [
+      "requirement-validator",
+      "conformance-auditor",
+      "frozen-file-protector",
+      "design-doc-validator",
+      "task-queue-checker",
+      "audit-logger"
+    ]
+  },
+  "commands": {
+    "directory": "./commands",
+    "autoLoad": true
+  },
+  "hooks": {
+    "autoLoad": true,
+    "directory": "./hooks",
+    "hooks": [
+      {
+        "event": "UserPromptSubmit",
+        "handler": "user-prompt-submit",
+        "required": true,
+        "description": "Parse intent, extract requirements, check task queue, route to agent"
+      },
+      {
+        "event": "PostToolUse",
+        "handler": "post-tool-use",
+        "required": true,
+        "description": "Validate output, check conformance, update audit log"
+      },
+      {
+        "event": "SubagentStart",
+        "handler": "subagent-start",
+        "required": true,
+        "description": "Verify agent reads CLAUDE.md, confirm scope, check frozen files"
+      },
+      {
+        "event": "SubagentStop",
+        "handler": "subagent-stop",
+        "required": true,
+        "description": "Collect outcomes, run conformance validator, log decisions"
+      },
+      {
+        "event": "TaskCompleted",
+        "handler": "task-completed",
+        "required": true,
+        "description": "Validate against requirement, update status, mark frozen files"
+      },
+      {
+        "event": "TeammateIdle",
+        "handler": "teammate-idle",
+        "required": false,
+        "description": "Alert if task queue has pending items, offer clarification"
+      }
+    ]
+  },
+  "configuration": {
+    "settings": "./.claude/settings.json",
+    "projectPreferences": "./.claude/project-preferences.md",
+    "conformanceRules": {
+      "requireAcceptanceCriteria": true,
+      "requireDesignDocReference": true,
+      "requireAuditTrail": true,
+      "requireVerticalSlice": true,
+      "blockPartialFeatures": true,
+      "blockMockData": true,
+      "blockImplicitDeferral": true,
+      "validateBeforeCompletion": true
+    }
+  },
+  "taskQueue": {
+    "location": "./.task-queue.json",
+    "required": true,
+    "format": "json"
+  },
+  "environment": {
+    "BOILER_MODE": "strict",
+    "NODE_ENV": "production",
+    "REQUIRE_CONFORMANCE": "true"
+  },
+  "fileStructure": {
+    "agents": "./agents/",
+    "hooks": "./hooks/",
+    "skills": "./skills/",
+    "commands": "./commands/",
+    "source": "./src/",
+    "tests": "./tests/",
+    "database": "./db/",
+    "integrations": "./integrations/",
+    "docs": "./docs/",
+    "decisionRecords": "./docs/DECISION-RECORDS/"
+  },
+  "frozenFiles": [
+    "./CLAUDE.md",
+    "./.claude/settings.json",
+    "./.claude/project-preferences.md",
+    "./.claude-plugin/plugin.json",
+    "./package.json",
+    "./.gitignore"
+  ],
+  "allowedCreations": [
+    "./agents/**/*.js",
+    "./hooks/**/*.js",
+    "./skills/**/*",
+    "./commands/**/*.js",
+    "./src/**/*.js",
+    "./src/**/*.ts",
+    "./src/**/*.jsx",
+    "./src/**/*.tsx",
+    "./tests/**/*.js",
+    "./tests/**/*.ts",
+    "./db/migrations/**/*.sql",
+    "./db/migrations/**/*.js",
+    "./integrations/**/*.js",
+    "./docs/**/*.md"
+  ],
+  "exportedInterfaceVersion": "1.0.0"
+}
